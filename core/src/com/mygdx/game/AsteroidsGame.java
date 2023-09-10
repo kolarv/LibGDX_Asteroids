@@ -20,7 +20,8 @@ public class AsteroidsGame extends ApplicationAdapter {
 	SpriteBatch batch;
 	Texture img;
 	OrthographicCamera camera;
-	Array<Sutr> AsteroidArray;
+	Array<MoovableSutr> AsteroidArray;
+	Array<ClickableSutr> ClickableArray;
 	BitmapFont kolik;
 	int dalsi;
 	@Override
@@ -28,7 +29,8 @@ public class AsteroidsGame extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, 800, 480);
-		AsteroidArray = new Array<Sutr>();
+		AsteroidArray = new Array<MoovableSutr>();
+		ClickableArray = new Array<ClickableSutr>();
 		kolik = new BitmapFont();
 		kolik.setColor(Color.RED);
 		dalsi = 0;
@@ -41,13 +43,21 @@ public class AsteroidsGame extends ApplicationAdapter {
 		batch.setProjectionMatrix(camera.combined);
 
 		batch.begin();
-			for (Sutr astr : AsteroidArray) {
+			for (MoovableSutr astr : AsteroidArray) {
 				batch.draw(astr.asteroidImage, astr.pos.x-50, astr.pos.y-50);
 				astr.pos.x += astr.smer.x*Gdx.graphics.getDeltaTime();
 				astr.pos.y += astr.smer.y*Gdx.graphics.getDeltaTime();
 			}
-		for (Iterator<Sutr> iter = AsteroidArray.iterator(); iter.hasNext();){
-			Sutr sutr = iter.next();
+			for (ClickableSutr clik : ClickableArray){
+				if(clik.isSelected()){
+					batch.draw(clik.redsteroidImage,clik.pos.x-50, clik.pos.y-50);
+				}
+				else{
+					batch.draw(clik.asteroidImage,clik.pos.x-50, clik.pos.y-50);
+				}
+			}
+		for (Iterator<MoovableSutr> iter = AsteroidArray.iterator(); iter.hasNext();){
+			MoovableSutr sutr = iter.next();
 			if(sutr.isOut()){
 				iter.remove();
 				dalsi--;
@@ -65,9 +75,17 @@ public class AsteroidsGame extends ApplicationAdapter {
 			int randY = (MathUtils.random(0,20)-10)*15;
 			smer.set(randX,randY,0);
 			camera.unproject(mouse);
-			Sutr sutr = new Sutr(mouse,smer);
-			AsteroidArray.add(sutr);
+			MoovableSutr moovablesutr = new MoovableSutr(mouse,smer);
+			AsteroidArray.add(moovablesutr);
 			dalsi++;
+		}
+
+		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)){
+			Vector3 mouse = new Vector3();
+			mouse.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+			camera.unproject(mouse);
+			ClickableSutr cks = new ClickableSutr(mouse);
+			ClickableArray.add(cks);
 		}
 	}
 	
@@ -77,15 +95,21 @@ public class AsteroidsGame extends ApplicationAdapter {
 		img.dispose();
 	}
 }
-
-class Sutr {
+class Sutr{
 	Texture asteroidImage;
 	Vector3 pos;
-	Vector3 smer;
-	public Sutr(Vector3 pos, Vector3 smer){
-		asteroidImage = new Texture("Asteroid.png");
-		this.smer = smer;
+
+	public Sutr(Vector3 pos){
 		this.pos = pos;
+		asteroidImage = new Texture("Asteroid.png");
+	}
+}
+
+class MoovableSutr extends Sutr{
+	Vector3 smer;
+	public MoovableSutr(Vector3 pos, Vector3 smer){
+		super(pos);
+		this.smer = smer;
 	}
 
 	public boolean isOut(){
@@ -97,5 +121,34 @@ class Sutr {
 
 	public String getLocation(){
 		return "X: "+pos.x+" Y: "+pos.y;
+	}
+}
+
+class ClickableSutr extends Sutr{
+	boolean selected;
+	Texture redsteroidImage;
+	public ClickableSutr(Vector3 pos) {
+		super(pos);
+		redsteroidImage = new Texture("Redsteroid.png");
+		if(MathUtils.random(0,1) == 1){
+			selected = true;
+		}
+		else selected = false;
+
+	}/*
+	ClickableSutr.addListener(new ChangeListener() {
+		@Override
+		public void changed (ChangeEvent event, Actor actor) {
+			//smth
+		}
+	});*/
+	public boolean isSelected(){
+		return selected;
+	}
+	public void select(){
+		selected = true;
+	}
+	public void deselect(){
+		selected = false;
 	}
 }
