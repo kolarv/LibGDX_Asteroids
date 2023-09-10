@@ -10,10 +10,16 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Iterator;
 
 public class AsteroidsGame extends ApplicationAdapter {
@@ -49,12 +55,7 @@ public class AsteroidsGame extends ApplicationAdapter {
 				astr.pos.y += astr.smer.y*Gdx.graphics.getDeltaTime();
 			}
 			for (ClickableSutr clik : ClickableArray){
-				if(clik.isSelected()){
-					batch.draw(clik.redsteroidImage,clik.pos.x-50, clik.pos.y-50);
-				}
-				else{
-					batch.draw(clik.asteroidImage,clik.pos.x-50, clik.pos.y-50);
-				}
+				batch.draw(clik.asteroidImage,clik.pos.x-50, clik.pos.y-50);
 			}
 		for (Iterator<MoovableSutr> iter = AsteroidArray.iterator(); iter.hasNext();){
 			MoovableSutr sutr = iter.next();
@@ -87,12 +88,24 @@ public class AsteroidsGame extends ApplicationAdapter {
 			ClickableSutr cks = new ClickableSutr(mouse);
 			ClickableArray.add(cks);
 		}
+
+		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
+			for (Iterator<ClickableSutr> iter = ClickableArray.iterator(); iter.hasNext();){
+				ClickableSutr clik = iter.next();
+					Vector3 tmp=new Vector3(Gdx.input.getX(),Gdx.input.getY(),0);
+					camera.unproject(tmp);
+					Rectangle textureBounds=new Rectangle(clik.pos.x-50,clik.pos.y-50,clik.asteroidImage.getWidth(),clik.asteroidImage.getHeight());// textureheight is the height of the texture (you can get it with texture.getHeight() or textureRegion.getRegionhHeight() if you have a texture region
+					if(textureBounds.contains(tmp.x,tmp.y))
+					{
+						clik.swapTextures();
+					}
+			}
+		}
 	}
 	
 	@Override
 	public void dispose () {
 		batch.dispose();
-		img.dispose();
 	}
 }
 class Sutr{
@@ -126,22 +139,26 @@ class MoovableSutr extends Sutr{
 
 class ClickableSutr extends Sutr{
 	boolean selected;
-	Texture redsteroidImage;
+Texture redS = new Texture("Redsteroid.png");
+Texture astS = new Texture("Asteroid.png");
 	public ClickableSutr(Vector3 pos) {
 		super(pos);
-		redsteroidImage = new Texture("Redsteroid.png");
 		if(MathUtils.random(0,1) == 1){
-			selected = true;
+			asteroidImage = redS;
 		}
-		else selected = false;
+		else {
+			asteroidImage = astS;
+		}
+	}
 
-	}/*
-	ClickableSutr.addListener(new ChangeListener() {
-		@Override
-		public void changed (ChangeEvent event, Actor actor) {
-			//smth
+	public void swapTextures(){
+		if(asteroidImage == redS){
+			asteroidImage = astS;
 		}
-	});*/
+		else{
+			asteroidImage = redS;
+		}
+	}
 	public boolean isSelected(){
 		return selected;
 	}
