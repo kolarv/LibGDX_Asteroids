@@ -50,12 +50,12 @@ public class AsteroidsGame extends ApplicationAdapter {
 
 		batch.begin();
 			for (MoovableSutr astr : AsteroidArray) {
-				batch.draw(astr.asteroidImage, astr.pos.x-50, astr.pos.y-50);
+				batch.draw(astr.asteroidImage, astr.pos.x-32, astr.pos.y-32);
 				astr.pos.x += astr.smer.x*Gdx.graphics.getDeltaTime();
 				astr.pos.y += astr.smer.y*Gdx.graphics.getDeltaTime();
 			}
 			for (ClickableSutr clik : ClickableArray){
-				batch.draw(clik.asteroidImage,clik.pos.x-50, clik.pos.y-50);
+				batch.draw(clik.asteroidImage,clik.pos.x-32, clik.pos.y-32);
 			}
 		for (Iterator<MoovableSutr> iter = AsteroidArray.iterator(); iter.hasNext();){
 			MoovableSutr sutr = iter.next();
@@ -94,7 +94,7 @@ public class AsteroidsGame extends ApplicationAdapter {
 				ClickableSutr clik = iter.next();
 					Vector3 tmp=new Vector3(Gdx.input.getX(),Gdx.input.getY(),0);
 					camera.unproject(tmp);
-					Rectangle textureBounds=new Rectangle(clik.pos.x-50,clik.pos.y-50,clik.asteroidImage.getWidth(),clik.asteroidImage.getHeight());// textureheight is the height of the texture (you can get it with texture.getHeight() or textureRegion.getRegionhHeight() if you have a texture region
+					Rectangle textureBounds=new Rectangle(clik.pos.x-32,clik.pos.y-32,clik.asteroidImage.getWidth(),clik.asteroidImage.getHeight());// textureheight is the height of the texture (you can get it with texture.getHeight() or textureRegion.getRegionhHeight() if you have a texture region
 					if(textureBounds.contains(tmp.x,tmp.y))
 					{
 						clik.swapTextures();
